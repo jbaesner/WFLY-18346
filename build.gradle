@@ -1,0 +1,16 @@
+apply plugin: 'eclipse'
+apply plugin: 'java'
+
+ext.versions = [
+  wildfly: '29.0.0.Final',
+]
+
+allprojects {
+  repositories {
+    mavenCentral()
+  }
+
+  plugins.withId('java') {
+    sourceCompatibility = '17'
+  }
+}
