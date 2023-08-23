@@ -29,13 +29,22 @@ task installServer(type: Copy) {
 task configureServer(type: Exec) {
   dependsOn installServer
   workingDir new File(wildFlyDir, "wildfly-${versions.wildfly}/bin")
-  commandLine 'cmd', '/c', "add-user.bat -a -u username -p password"
+  if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+    commandLine 'cmd', '/c', "add-user.bat -a -u username -p password"
+  } else {
+    commandLine 'sh', '-c', "./add-user.sh -a -u username -p password"
+  }
 }
 
 task startServer {
   dependsOn configureServer
   doLast {
-    ProcessBuilder processBuilder = new ProcessBuilder('cmd', '/c', 'standalone.bat')
+    ProcessBuilder processBuilder
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+      processBuilder = new ProcessBuilder('cmd', '/c', 'standalone.bat')
+    } else {
+      processBuilder = new ProcessBuilder('sh', '-c', './standalone.sh')
+    }
     processBuilder.directory(new File(wildFlyDir, "wildfly-${versions.wildfly}/bin"))
     processBuilder.environment().put('JAVA_HOME', org.gradle.internal.jvm.Jvm.current().javaHome.absolutePath)
     File logFile = new File(buildDir, 'logs/std.log')
@@ -48,11 +57,19 @@ task startServer {
 task deployServer(type: Exec) {
   dependsOn war
   workingDir new File(wildFlyDir, "wildfly-${versions.wildfly}/bin")
-  commandLine 'cmd', '/c', "jboss-cli.bat -c \"deploy --force ${war.archiveFile.get()}\""
+  if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+    commandLine 'cmd', '/c', "jboss-cli.bat -c \"deploy --force ${war.archiveFile.get()}\""
+  } else {
+    commandLine 'sh', '-c', "./jboss-cli.sh -c \"deploy --force ${war.archiveFile.get()}\""
+  }
 }
 
 task stopServer(type: Exec) {
   dependsOn war
   workingDir new File(wildFlyDir, "wildfly-${versions.wildfly}/bin")
-  commandLine 'cmd', '/c', "jboss-cli.bat -c shutdown"
+  if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+    commandLine 'cmd', '/c', "jboss-cli.bat -c shutdown"
+  } else {
+    commandLine 'sh', '-c', "./jboss-cli.sh -c \"shutdown\""
+  }
 }

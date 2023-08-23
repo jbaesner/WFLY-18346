@@ -1,6 +1,6 @@
 Reproducer for <https://issues.redhat.com/browse/WFLY-18346>
 
-On Windows:
+On Windows/Linux:
 * `gradlew startServer`
 * Wait for WildFly to start
 * `gradlew deployServer`
